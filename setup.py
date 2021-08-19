@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pybiosis",
-    version="0.0.1",
+    version="0.0.2",
     author="Nawar Ismail",
     author_email="nawar@palfore.com",
     description="Python integration",
@@ -23,7 +23,7 @@ setuptools.setup(
     # package_dir={"": "src"},
     packages=setuptools.find_packages(),
     python_requires=">=3.6",
-    install_requires=[
-        'pyautogui'
-    ]
+    # install_requires=[
+    #     'pyautogui'
+    # ]
 )
