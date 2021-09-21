@@ -144,7 +144,13 @@ def get_desktop_from_window(identifier):
 # BUG: Sometimes the 'Name' property is truncated and replaces the ending with '...'.
 # To acomodate this, if a name ends with '...', it is only checked up to that point.
 import pygetwindow
+import ctypes
 import time
+
+def change_desktop_background(path):
+	# path => "C:\\Users\\...\\Pictures\\background.png"
+	# print(f'"{path}"')
+	ctypes.windll.user32.SystemParametersInfoW(20, 0, path , 0)
 
 def grab_windows(*window_names):
 	return grab_windows_by('Name', *window_names)
