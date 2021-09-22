@@ -4,20 +4,21 @@ This project allows users to run python functions from existing devices and serv
 ## Installation
 1. Install [Push2Run](https://www.push2run.com/) (for voice commands) (tested with dropbox method and the key phrase "on pc", since it is short).
 2. Install Pybiosis through pip with `pip install pybiosis`.
-3. Create a directory to hold your custom functions and set the Environment Variable `PYBIOSIS_USER_PATH` either using the Windows gui or with the command `setx PYBIOSIS_USER_PATH "your path here"`.
+3. Create a directory to hold your custom functions and set the Environment Variable `PYBIOSIS_USER_PATH` either using the Windows gui or with the command `setx PYBIOSIS_USER_PATH "your path here"`. You may need to restart your terminal.
 4. Add a file called driver.py in that directory that contains this code:
 
 ```python
 from pybiosis.loader import load_user_modules
-from pybiosis.compiler import Compiler
+from pybiosis.compiler import DeckCompiler, GoogleCompiler
 
 def main():	
     load_user_modules()
-    Compiler(push2run_overwrite=True, deck_overwrite=True).compile()
-    # Set to False if not using device.
+    DeckCompiler().compile()
+    GoogleCompiler().compile()
 ```
 5. Create a new file in that directory (eg: `my_first_commands.py`) and consider the example below.
 6. Run the command `python -m pybiosis` to compile your functions in the command prompt with administrator privileges. Repeat this any time you add new functions.
+7. If you use multiple StreamDeck profiles, you can set the Environment Variable `PYBIOSIS_PROFILE_ID` to the desired identifier (without `.sdProfile`). The identifiers can be found in `AppData\Roaming\Elgato\StreamDeck\ProfilesV2`.
 
 ## Example
 A user wishes to launch a game with a google voice command and/or a StreamDeck button:

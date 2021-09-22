@@ -1,0 +1,3 @@
+include pybiosis/applications/ControlMyMonitor/ControlMyMonitor.exe
+include pybiosis/applications/Push2Run/
+include pybiosis/applications/VirtualDesktop/VirtualDesktop.exe

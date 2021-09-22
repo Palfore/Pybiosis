@@ -93,13 +93,6 @@ def multi_phrase(*words):
 	"""
 	return list(map(' '.join, it.product(*words)))
 
-def assemble(*compilers):
-	print("Constructing compilers")
-	compilers = [compiler() for compiler in compilers]
-
-	print("Compiling compilers")
-	for compiler in compilers:
-		compiler.compile()
 
 class DeckCompiler:
 	def __init__(self):
@@ -200,7 +193,6 @@ class DeckCompiler:
 		pyautogui.hotkey('alt', 'f4')
 
 
-
 class GoogleCompiler:
 	def __init__(self):
 		self.PUSH2RUN_PROFILE_PATH = os.path.abspath(Path(__file__).parent / 'applications' / 'Push2Run' / 'pybiosis.p2r')
@@ -231,6 +223,7 @@ class GoogleCompiler:
 		# import shutil
 		# shutil.rmtree(self.PUSH2RUN_LOCAL_DATA)
 		# This doesn't work either... Creates a clean version which prompts user even more.
+		# It actually seems random, so re-running the compilation often fixes it.
 
 
 		# Reset all push2run functions. Note that this leaves the 'calculator' command, but this isn't a big deal.
@@ -240,6 +233,7 @@ class GoogleCompiler:
 
 		# Programmatic uploading was added to push2run: https://www.push2run.com/phpbb/viewforum.php?f=6
 		# Calculator is still added, but I think that is fine.
-		json.dump([m.push2run_dict for m in google.functions], open(self.PUSH2RUN_PROFILE_PATH, 'w'), indent=4)			
+		os.makedirs(os.path.dirname(self.PUSH2RUN_PROFILE_PATH), exist_ok=True)
+		with open(self.PUSH2RUN_PROFILE_PATH, "w") as f:
+			json.dump([m.push2run_dict for m in google.functions], f, indent=4)
 		os.system(f'powershell.exe -command "Start-Process -window minimized {self.PUSH2RUN_PROFILE_PATH}"')
-		# os.system(f'start /min "" "{self.PUSH2RUN_PROFILE_PATH}"')
