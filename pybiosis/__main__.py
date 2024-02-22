@@ -1,4 +1,4 @@
-if __name__ == '__main__':
+def launch_user_main():
 	from pybiosis.loader import get_user_path
 	import pybiosis.validate as validate
 	import sys
@@ -9,4 +9,8 @@ if __name__ == '__main__':
 	os.chdir(get_user_path())
 
 	from driver import main
-	main()
+	main(sys.argv)
+
+
+if __name__ == '__main__':
+	launch_user_main()

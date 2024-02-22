@@ -26,4 +26,11 @@ setuptools.setup(
     # install_requires=[
     #     'pyautogui'
     # ]
+
+    entry_points={
+        'console_scripts': [
+            'pybiosis = pybiosis.__main__:launch_user_main',
+            'bb = pybiosis.__main__:launch_user_main',  # TODO: make 'bb' dynamic with a CLI --alias command for config. Not sure if possible.
+        ],
+    },
 )

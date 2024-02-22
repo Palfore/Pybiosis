@@ -18,11 +18,10 @@ def load_user_modules():
 	for module in get_user_modules():
 		try:
 			import_from_path(module)
-		except ModuleNotFoundError:
+		except ModuleNotFoundError as e:
 			# Hmm... new streamlit dashboard in my user dir is causing an error.
 			# I'm ignoring it as an exception since I dont need it to import.
-			print(f"Error loading user module: {module}")
-
+			print(f"Error loading user module: {module}, {e}")
 
 def import_from_path(module):
 	module = module.replace('\\', '.')

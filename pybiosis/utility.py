@@ -18,6 +18,10 @@ def save_function(path, name, command, f):
 		The .vbs does not display a window. """
 	assert all(hasattr(f, k) for k in ['show', 'pause'])
 	path.mkdir(parents=True, exist_ok=True)
+
+
+	name = name.replace('<', '_')
+	name = name.replace('>', '_')
 	
 	batch_file = path / (name + '.bat')
 	with open(batch_file, 'w') as file:

@@ -12,14 +12,15 @@ import glob
 class StreamDeck(Device):
 	""" A decorator that allows a function to be called from a StreamDeck button. """
 
-	HEADERS = ['location', 'image']
+	HEADERS = ['location', 'image', 'setter']
 	TEMP_PATH = get_user_path() / '.compilers/streamdeck'
 	NUM_ROWS = 3
 	NUM_COLUMNS = 5
 	
-	def __init__(self, location, image=None): 
+	def __init__(self, location, image=None, setter=None): 
 		self.location = location
 		self.image = image
+		self.setter = setter
 
 	def __call__(self, func):
 		func = super().__call__(func)
@@ -47,11 +48,16 @@ class StreamDeck(Device):
 		for f in glob.glob(str(StreamDeck.TEMP_PATH / '*')):
 			os.remove(f)
 		for i, f in enumerate(functions):
+
+			if f.setter:
+				f.title = f.setter
+
 			# Print
 			print_function_header(f, i)
 			print(PRINTING_COLORS.key+f'\t\t\tCommand:', execution_string(f))
 			print(PRINTING_COLORS.key+f'\t\t\tLocation:', str(f.location).replace('\n', ' '))
 			print(PRINTING_COLORS.key+f'\t\t\tImage:', f.image)
+			print(PRINTING_COLORS.key+f'\t\t\tName:', '|'.join([f.__name__, f.name, f.title]))
 
 			# Process
 			file = save_function(StreamDeck.TEMP_PATH, f.__name__+'_'+str(id(f)), execution_string(f), f=f)

@@ -1,9 +1,13 @@
 
 # Pybiosis
-This project allows users to run python functions from existing devices and services like Stream Deck and Google Assistant. This is done through the use of python decorators that register user functions to those devices after a compiling stage. 
+
+> What could empower you more than a symbiotic relationship with Python?
+
+Pybiosis is an automation software that focuses on making python functions more accessible by providing versatile entry-points to functions.
+This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like Windows Task Scheduler, StreamDeck, and Google Assistant.
 
 ## Examples
-Here is a showcase of a function that is hooked up to several devices/services.
+Here is a showcase of a function that is hooked up to several devices and services.
 
 ```python
 from pybiosis import *
@@ -13,21 +17,39 @@ from pybiosis import *
 @Deck(location="Games/3,1", image='spire.jpg')
 @Scheduler(trigger="Daily", start="today-5:01pm")
 def spire():
-    path_to_game = R"C:\Users\...\Games\Slay the Spire.url"
+    # Launch the game shortcut using cmd.
+    path_to_game = R"C:\Games\Slay the Spire.url"
     os.system(Rf'cmd.exe /C START "" "{path_to_game}"')
 ```
-The `Device` decorator is a generic decorator that simply provides some metadata to the function. 
-The `Google` decorator let's a user talk to their google assistant to trigger a `python` function to run. The `multi_phrase` function gives room for more freedom and possible mishearing (since the voice recognition may not hear perfectly). To actually call this function, the user would say "Hey Google, on pc, play spire" (or some variation) and the game would be launched on their computer.
-The `StreamDeck` decorator places a button in the 4th column and 2nd row in the Games folder (0-indexing)  that also launches the game. An icon (like `spire.jpg`) can be specified by adding images to a specified folder.
-The `Scheduler` decorator schedules the game to run on a provided schedule, in this case every day right after 5pm.
+
+Let's unpack all of that!
+
+First, the function itself `spire()` launches a game called [Slay the Spire](https://store.steampowered.com/app/646570/Slay_the_Spire) from my game install folder.
+
+Then, there are the decorators:
+
+
+- ```@Device(title='Spire', description="Launch Slay the Spire.")```
+    - The `Device` decorator simply provides metadata to the function. 
+- ```@Google(voice=multi_phrase(['open', 'play', 'place'], ['spire', 'fire', 'buyer']))```
+    - The `Google` decorator provides an entry point through Google Assistant.
+    - With the appropriate setup (see below), the user would trigger the function with _"Hey Google, on pc, play spire"_. 
+    - The `multi_phrase` function uses synonyms to specify phrases to allow for phrases may be misunderstood by the voice recognition.
+- ```@Deck(location="Games/3,1", image='spire.jpg')```
+    - The `StreamDeck` is a device with programmable buttons and this decorator places a button in a specific location (with an icon `spire.jpg`).
+
+- ```@Scheduler(trigger="Daily", start="today-5:01pm")```
+    - The `Scheduler` decorator executes the provided function regularly, in this case right on time to unwind!
 
 ### General:
-Each device or service has an associated compiler that provides a decorator. There are some built-in to `Pybiosis` but you can also define your own. These decorators are used on a function to associated them with a device/service. Here are some basic templates for example functions. See [Compilers](#compilers) below for more details.
+Each decorator is powered by a compiler that connects that service to the function. These decorators wrap functions to allow them to be triggered by a given device/service. Here are some basic examples. See [Compilers](#compilers) below for more details.
 
-1. Create a parameter-less function. 
+1. Create a simple function. 
     ```python
+    import webbrowser
+
     def func():
-        pass  # Do anything
+        webbrowser.open("www.google.com")
     ```
 
 2. Provide a title and description to the function.
@@ -54,7 +76,7 @@ Each device or service has an associated compiler that provides a decorator. The
 
 5. Control what happens to the command window that opens when a function is triggered.
     ```python
-    @Device(show=True, pause=True)
+    @Device(show=True, pause=True)  # Make a terminal window appear, and pause when execution is finished.
     @StreamDeck(phrase="settings")
     def func():
         pass
@@ -69,11 +91,13 @@ Each device or service has an associated compiler that provides a decorator. The
     ```
     
 ### Class syntax vs Function syntax
-The number of function can accumulate quickly, so to improve organization the `class syntax` uses nested `classes` to mimic a folder structure, as syntatic sugar. 
-The `register` decorator brings all functions to the top level (i.e. it ignores all classes). Note that this means if you are calling a nested function, you do not need to prefix it with the class name i.e. not `Monitor.MonitorBrightness.brightness_up()`, just `brightness_up()`. This also means that duplicate names will override the function, so naming must be unique at the function level (per module). By contrast, constants _do_ need the class name i.e. `Monitor.MAX_BRIGHTNESS` not just `MAX_BRIGHTNESS`.
+
+The number of functions can accumulate quickly, so to improve organization the `class syntax` uses nested `classes` to mimic a folder structure, as syntatic sugar. 
 ```python
 @register(globals())
 class Monitor:
+    MAX_BRIGHTNESS: int = 100
+
     class Brightness:
         @StreamDeck(location='Monitors/Display\nSettings/1,0')
         def brightness_up():  # Note that "up()" isn't used since it would clash with Contrast.
@@ -92,7 +116,13 @@ class Monitor:
         def contrast_down():
             pass
 ```
+To understand class syntax, we need to know a little bit about how Pybiosis works under the hood.
 
+Each function must be accessible at the module level. This means that Pybiosis expects to be able to call something like `import monitors; monitors.brightness_up()`. The class syntax is nice because it allows us to organize the functions logically, but it complicates the namespace.
+
+This is what the `register` decorator resolves. It decomposes the nested classes and puts the methods back into the global namespace (this is why `globals()` is used, and why the methods don't take `self`). So, even with the nesting, we can call `monitors.brightness_up()` directly. Note that class attributes _do_ need to be fully qualified: i.e. `Monitor.MAX_BRIGHTNESS` not just `MAX_BRIGHTNESS`.
+
+Furthermore, every decorated function is saved as an execution string (`python ...`) in a `.vbs` a `.bat` file. Those allow us to control whether a debug window pops up, for example. This accessible format allows the functions to be called from other programs that can't easily access python directly. For example, the StreamDeck doesn't easily support executing the right python command, but it easily supports running those script files.
 
 ### Compilers
 Pybiosis comes with some built-in device compilers. You may also define your own if you have a novel device.
@@ -100,27 +130,28 @@ Pybiosis comes with some built-in device compilers. You may also define your own
 #### StreamDeck
 Requires a [StreamDeck](https://www.elgato.com/en/stream-deck).
 
-1. Specify a location for the button to be placed. The value of `x` and `y` are the 0-indexed column and row, respectively. Note that the folder must first be created _manually_ through the application GUI.
-    ```
-    @StreamDeck(location='Folder/On/Stream/Deck/x,y)
+1. Specify a location for the button to be placed specifying a folder, row, and column. See [Limitations](#limitations) about needing to _manually_ create folders through the StreamDeck GUI.
+    ```python
+    @StreamDeck(location='Folder/On/Stream/Deck/3,2')
     def func()
         pass
     ```
 2. You can also specify multiple locations.
-    ```
-    @StreamDeck(location=['Path1/x,y', 'Path2/x,y'])
+    ```python
+    @StreamDeck(location=['Path1/3,2', 'Path2/3,2'])
     def func()
         pass
     ```
 2. And an image. Images should be placed  in `PYBIOSIS_USER_PATH/Images`. See [Installation](#installation) for more details.
-    ```
-    @StreamDeck(location='Path/x,y', image="my_image.png")
+    ```python
+    @StreamDeck(location='Path/3,2', image="my_image.png")
     def func()
         pass
     ```
 If you use multiple StreamDeck profiles, you can set the Environment Variable `PYBIOSIS_PROFILE_ID` to the desired identifier (without `.sdProfile`). The identifiers can be found in `AppData\Roaming\Elgato\StreamDeck\ProfilesV2`.
 #### Google Assistant
-Requires a [Push2Run](https://www.push2run.com/) installation and access to a Google Assistant device.
+Requires a [Push2Run](https://www.push2run.com/) installation and access to a Google Assistant device. Push2Run has been tested with the Dropbox method and the key phrase "on pc", although the API has historically been depreciated and possibly restored, so please check the link for the current status.
+
 1. The simpliest way to register a command is with a single word.
     ```python
     @Assistant(phrase="Hello")
@@ -146,9 +177,9 @@ Requires a [Push2Run](https://www.push2run.com/) installation and access to a Go
         os.chdir(R"C:\Program Files (x86)\Steam\steamapps\common\SlayTheSpire")
         os.system(R'jre\bin\java.exe -jar mts-launcher.jar')
     ```
-Push2Run has been tested with the Dropbox method and the key phrase "on pc", since it is short.
+
 #### Scheduler
-Requires a Windows OS. No installation is required since it uses the Windows Task Scheduler. See [`schtasks.exe`](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks-create) for more details on usage.
+Requires a Windows machine. No installation is required since it uses the Windows Task Scheduler. See [`schtasks.exe`](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks-create) for more details on usage.
 
 1. Schedule a function to run now (in the next minute).
     ```python
@@ -181,8 +212,8 @@ Requires a Windows OS. No installation is required since it uses the Windows Tas
         import winsound
         winsound.Beep(1000, 200)
     ```
-#### Creating your own
-You can also create your own compiler just by inheriting from `Device` (or a subclass).
+#### Custom
+You can also create your own compiler just by inheriting from `Device` (or a subclass). Check out the existing implementations for ideas.
 
 ## Installation
 1. Install `Pybiosis` through pip with `pip install pybiosis`.
@@ -200,14 +231,20 @@ You can also create your own compiler just by inheriting from `Device` (or a sub
         pybiosis.load()
         pybiosis.Device.compile_all()
     ```
-    You can also create other new python files in  `PYBIOSIS_USER_PATH` for modularity.
-5. Run the command `python -m pybiosis` to compile your functions in the command prompt with administrator privileges. Repeat this any time you add new functions. 
+    You can also create decorators in other python files in the  `PYBIOSIS_USER_PATH` (eg: games.py).
+5. Run the command `python -m pybiosis` (`bb` is also registered as an alias, see `setup.py`) to compile your functions in the command prompt with administrator privileges. Repeat this any time you add new functions. 
 
 ## Limitations
-0. *All compilers must be valid, even if they don't get used. This should change in future.
-1. *Currently only tested on Windows, at least some application functionality is windows only. Again, the whole application is restricted to windows even though only one compiler requires it.
-2. Stream Deck folders must be manually created.
-3. If you get a password prompt from Push2Run, simply recompile.
+1. Most of this functionality is tested on Windows.
+2. If you get a password prompt from Push2Run, simply recompile until it stops.
+
+## Future Work
+1. Stream Deck folders cannot be generated programmatically, and deleting is not yet supported.
+2. It seems natural to support a CLI and possibly a GUI to manage the functions.
+3. Use a config instead of environment variable to set the user path.
+4. Add tools like monitor control, audio controls, usb devices, games, GUI automation, dashboard.
+5. Add examples folder.
+
 
 ## Questions?
-Email me at nawar@palfore.com.
+Email me at nawar@palfore.com, or make a pull request!
