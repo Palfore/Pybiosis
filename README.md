@@ -4,7 +4,7 @@
 > What could empower you more than a symbiotic relationship with Python?
 
 Pybiosis is an automation software that focuses on making python functions more accessible by providing versatile entry-points to functions.
-This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like Windows Task Scheduler, StreamDeck, and Google Assistant.
+This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler).
 
 ## Examples
 Here is a showcase of a function that is hooked up to several devices and services.
@@ -24,7 +24,7 @@ def spire():
 
 Let's unpack all of that!
 
-First, the function itself `spire()` launches a game called [Slay the Spire](https://store.steampowered.com/app/646570/Slay_the_Spire) from my game install folder.
+First, the function itself `spire()` launches a game called [Slay the Spire](https://store.steampowered.com/app/646570/Slay_the_Spire) from my  installation folder for games.
 
 Then, there are the decorators:
 
@@ -33,16 +33,16 @@ Then, there are the decorators:
     - The `Device` decorator simply provides metadata to the function. 
 - ```@Google(voice=multi_phrase(['open', 'play', 'place'], ['spire', 'fire', 'buyer']))```
     - The `Google` decorator provides an entry point through Google Assistant.
-    - With the appropriate setup (see below), the user would trigger the function with _"Hey Google, on pc, play spire"_. 
-    - The `multi_phrase` function uses synonyms to specify phrases to allow for phrases may be misunderstood by the voice recognition.
+    - With the [appropriate setup](#google-assistant), the user would trigger the function with _"Hey Google, on pc, play spire"_. 
+    - The `multi_phrase` function uses synonyms to accommodate phrases that may be misunderstood by the voice recognition.
 - ```@Deck(location="Games/3,1", image='spire.jpg')```
-    - The `StreamDeck` is a device with programmable buttons and this decorator places a button in a specific location (with an icon `spire.jpg`).
+    - The `StreamDeck` is a [device with programmable buttons](https://www.elgato.com/en/stream-deck) and this decorator places a button in a specific location (with an icon `spire.jpg`).
 
 - ```@Scheduler(trigger="Daily", start="today-5:01pm")```
     - The `Scheduler` decorator executes the provided function regularly, in this case right on time to unwind!
 
 ### General:
-Each decorator is powered by a compiler that connects that service to the function. These decorators wrap functions to allow them to be triggered by a given device/service. Here are some basic examples. See [Compilers](#compilers) below for more details.
+Each decorator is powered by a compiler that connects that function to a given service or device. Here are some basic examples. See [Compilers](#compilers) below for more details.
 
 1. Create a simple function. 
     ```python
@@ -227,12 +227,13 @@ You can also create your own compiler just by inheriting from `Device` (or a sub
     def beep():
         winsound.Beep(1000, 200)
         
-    def main(): 
+    def main(args): 
         pybiosis.load()
         pybiosis.Device.compile_all()
     ```
-    You can also create decorators in other python files in the  `PYBIOSIS_USER_PATH` (eg: games.py).
-5. Run the command `python -m pybiosis` (`bb` is also registered as an alias, see `setup.py`) to compile your functions in the command prompt with administrator privileges. Repeat this any time you add new functions. 
+    You can also create decorators in other python files in the  `PYBIOSIS_USER_PATH` (eg: games.py), and they will also get registered.
+4. Run the python command `import pybiosis; pybiosis.Device.compile_all()` to compile your functions. You may also need admin privileges.
+5. For the CLI, run `python -m pybiosis` (`pybiosis` and `bb` are also registered aliases, see `setup.py`). This will run `main(sys.argv)` in your driver file, which you can use to run a custom CLI.
 
 ## Limitations
 1. Most of this functionality is tested on Windows.
