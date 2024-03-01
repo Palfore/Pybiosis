@@ -1,0 +1,19 @@
+---
+bb config
+bb config --set key value
+bb config --set key
+---
+bb user edit
+bb user
+	-> edit
+	-> resume
+---
+bb compile
+bb
+	-> config
+	-> user
+		-> edit
+		-> resume
+----
+* Repeat with python -m pybiosis
+* Check that the other alias pybiosis also works on just one or two commands.

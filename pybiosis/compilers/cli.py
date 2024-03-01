@@ -37,6 +37,7 @@ class CommandFramework:
 	HEADER: str = 50 * "-"
 	CMD_START: callable = lambda self, args: f"⚡ CLI Executing Command: {args.cmd} with args {args}\n{self.HEADER}"
 	CMD_END: callable = lambda self, args: f"{self.HEADER}\n👋 Thanks for Running Your Command!"
+	GOOEY_DESCRIPTION_WORKAROUND: str = "|--------------------|"
 
 	DEFAULT_MENU = [
 		{
@@ -90,13 +91,12 @@ class CommandFramework:
 		}
 	]
 
-	@staticmethod
-	def call(method, setup, args=None, unknown_args=None):
-		""" If setup is not None, this call setups the args. If setup is None, the call is executed. """
-		try:  # We allow methods to leave unknown_args out of the function signature.
-			return method(setup=setup, args=args, unknown_args=unknown_args)  # Ignore "TypeError: Commands.add_call() got an unexpected keyword argument 'unknown_args'", it is expected.
-		except TypeError:
-			return method(setup=setup, args=args)
+	# def call(self, method, setup, args=None, unknown_args=None):
+	# 	""" If setup is not None, this call setups the args. If setup is None, the call is executed. """
+	# 	try:  # We allow methods to leave unknown_args out of the function signature.
+	# 		return method(setup=setup, args=args, unknown_args=unknown_args)  # Ignore "TypeError: Commands.add_call() got an unexpected keyword argument 'unknown_args'", it is expected.
+	# 	except TypeError:
+	# 		return method(setup=setup, args=args)
 
 	def build(self, gui: bool=False) -> dict:
 		""" Attaches all the commands to the CLI.
@@ -122,10 +122,10 @@ class CommandFramework:
 				# For some reason, the help text doesn't appear normally, so this is a hack.
 				method = getattr(self, method_name)
 				if gui and hasattr(method, '__doc__') and method.__doc__:
-					parser.add_argument('DESCRIPTION', default="--------------------", help=method.__doc__)  # Adhoc way of adding command description, while it seems bugged.
+					parser.add_argument('DESCRIPTION', default=self.GOOEY_DESCRIPTION_WORKAROUND, help=method.__doc__)  # Adhoc way of adding command description, while it seems bugged.
 
-				logging.debug(f"Adding {command_name}")
-				self.call(method, setup=parser) 
+				logging.debug(f"Setting up new command: {command_name}")
+				method(setup=parser, args=None)
 
 		if gui:
 			return self.parser.parse_args()
@@ -140,15 +140,21 @@ class CommandFramework:
 		add_ functions must take 'setup', 'args'; and optionally 'unknown_args'.
 		"""
 		assert args, f"Args should exist as a Namespace, but doesn't? {args}"
+		
+		# Preprocess unknown_args, which gets 'auxiliary' elements that need filtering.
+		if '--' in unknown_args:
+			unknown_args.remove('--')
+		if self.GOOEY_DESCRIPTION_WORKAROUND in unknown_args:
+			unknown_args.remove(self.GOOEY_DESCRIPTION_WORKAROUND)
 
-		print("🚚 Dispatched:", args, unknown_args)
-
+		# Dispatch
+		print("🚚 Dispatching:", args, unknown_args)
 		if args.cmd:
 			method_name = self.METHOD_PREFIX + args.cmd
 			if hasattr(self, method_name):
 				print(self.CMD_START(args))
 				method = getattr(self, method_name)
-				self.call(method, setup=None, args=args, unknown_args=unknown_args)
+				method(setup=None, args=args, unknown_args=unknown_args)
 				print(self.CMD_END(args))
 			else:
 				print(f"Invalid Method Name: {method_name}")
@@ -182,14 +188,12 @@ class CommandFramework:
 				self.parser = argparse.ArgumentParser(description=f"{cls.PROGRAM_NAME}!\n{cls.DESCRIPTION}", formatter_class=RichHelpFormatter)
 
 		# Dispatch to the right CLI type, and further dispatch the function call.
-		args = [a for a in args if (not a.startswith('--') or a == '--help')]  # Not sure why we prevent '--'?
-		if len(args) == 1:  # No actual args, just the default sys.argv[0] == pybioisis_script.
+		if gui := len(args) == 1:  # No actual args, just the default sys.argv[0] == pybioisis_script.
 			print("🚀 Launching the CLI as a GUI (🖥️).")
-			cli = GUI_CLI()
-			args = cli.build(gui=True)
+			GUI_CLI().build(gui=gui)  # .build() launches the gooey GUI: self.parser.parse_args()
 		else:
 			print("🚀 Launching the CLI.")
 			cli = CLI()
-			args, unknown_args = cli.build(gui=False)
+			args, unknown_args = cli.build(gui=gui)
 			cli.dispatch(args, unknown_args)
 

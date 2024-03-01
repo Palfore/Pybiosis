@@ -4,6 +4,7 @@ from pybiosis.util.config import ConfigurationManager
 import pybiosis.util.general as general
 import pybiosis.loader as loader
 import pybiosis
+import subprocess
 import argparse
 import sys
 import os
@@ -120,7 +121,7 @@ def call_run(args, unknown_args):
 				RunHelper.call_function_by_dot_syntax(data, identifier)
 
 			case _:
-				print("Command to be executed...")
+				print(f"Command to be executed: {args} {unknown_args}")
 				match unknown_args:
 					case [identifier]:
 						print("Calling:", identifier)
@@ -133,14 +134,18 @@ def call_compile(args, unknown_args):
 		pybiosis.load()
 		pybiosis.Device.compile_all()
 
-def call_user(args, unknown_args):
-	# Option 1) Use sys.argv
-	# sys.argv.pop(sys.argv.index("user"))  # Remove the 'user' command.
-	# os.system(f"{sys.executable} driver.py {' '.join(sys.argv[1:])}")
 
-	# Option 2) Use unknown_args
-	with general.ChangeDir(loader.get_user_path()):
-		os.system(f"{sys.executable} driver.py {' '.join(unknown_args)}")
+def call_user(gui, args, unknown_args):
+	command_list = [sys.executable, 'driver.py'] + unknown_args
+	if gui:
+		subprocess.Popen(command_list, cwd=loader.get_user_path(),
+			start_new_session=True,
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE,			
+		)
+	else:
+		subprocess.Popen(command_list, cwd=loader.get_user_path())
+
 
 def call_config(args, unknown_args, config_variables):
 	manager = ConfigurationManager()

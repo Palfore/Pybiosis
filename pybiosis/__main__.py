@@ -17,7 +17,7 @@ STOP_MSG = f"🔴 Stopping the Pybiosis CLI."
 class Commands(CommandFramework):
 	CONFIG_VARIABLES = ['user_path']
 
-	def add_run(self, setup, args, unknown_args):
+	def add_run(self, setup, args, **kwargs):
 		""" Run and search for functions to run. """
 
 		with general.ChangeDir(loader.get_user_path()):
@@ -31,9 +31,9 @@ class Commands(CommandFramework):
 			return
 
 		print(f"🏃 Running the [green]RUN[/green] command.")
-		commands.call_run(args, unknown_args)
+		commands.call_run(args, kwargs.get('unknown_args'))
 
-	def add_compile(self, setup, args):
+	def add_compile(self, setup, args, **kwargs):
 		""" This compiles the Pybiosis functions. """
 		if setup:
 			return
@@ -41,16 +41,17 @@ class Commands(CommandFramework):
 		print(f"🛠️ Running the [green]COMPILE[/green] command.")
 		commands.call_compile(args, None)  # TODO: for some reason, this hangs...
 		
-	def add_user(self, setup, args, unknown_args):
+	def add_user(self, setup, args, **kwargs):
 		""" This calls the user's driver.py module. """
 		# TODO: It seems like `python -m pybiosis user --help` fails. (doesn't get here)
 		if setup:
+			setup.add_argument('-d', '--detached', action='store_true', help="Run as a detached process [only use in GUI CLI].")
 			return
 
 		print("👨 Running the [green]USER[/green] command.")
-		commands.call_user(args, unknown_args)
+		commands.call_user(args.detached, args, kwargs.get('unknown_args'))
 
-	def add_config(self, setup, args):
+	def add_config(self, setup, args, **kwargs):
 		""" Access the config functionality. """
 		if setup:
 			setup.add_argument('-l', '--list', action='store_true', help='List the config variables.')
@@ -63,8 +64,19 @@ class Commands(CommandFramework):
 
 
 def main():
-	atexit.register(lambda: print(STOP_MSG))
+	from pathlib import Path
+
+	# On windows, we need to ensure that the executable is accessible.
+	# It turns out `bb` command needs to call `bb.exe`, so we need to manually append if missing.
+	# Using the existence of files makes this more robust than querying hardware.
+	if not Path(sys.argv[0]).exists():
+		if Path(sys.argv[0] + '.exe').exists():
+			sys.argv[0] += '.exe'
+	assert Path(sys.argv[0]).exists(), f"Somehow, the executable path couldn't be found: {sys.argv[0]}"
+
+	# Run the CLI
 	print(START_MSG)
+	atexit.register(lambda: print(STOP_MSG))
 	Commands.run_cli(sys.argv)
 
 if __name__ == '__main__':
