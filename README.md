@@ -236,22 +236,27 @@ You can also create your own compiler just by inheriting from `Device` (or a sub
 A CLI, GUI wrapper for that CLI, and a GUI provide general access to these functions. Otherwise, they are accessible through the attached device/service.
 
 1. Run `python -m pybiosis --help` to learn about the CLI, which includes `compile`, `config`, `run`, and `user` commands. All decorated functions are accessible through the CLI.
+![something](pybiosis/images/CLI.png)
+
 2. Run `python -m pybiosis` to launch the CLI as a GUI (thanks to [gooey](https://github.com/chriskiehl/Gooey)). This GUI opens by default if no command is specified when invoking `pybiosis`.
+![The CLI as a GUI](pybiosis/images/CLI_GUI.png)
+
 3. It is highly recommended to provide a CLI for your driver.py file:
 ```python
 from pybiosis.compilers.cli import CommandFramework
 from rich import print  # Optional `pip install rich`
 
 class Commands(CommandFramework):
-def add_videos(self, setup, args):
-		if setup:
+    def add_videos(self, setup, args):
+        if setup:
             pass # Use setup.add_arguments(...) to add parameters.
-			return
+            return
 
-		print(f"🛒 Running the [green]Youtube[/green] command.")
-		webbrowser.open("https://www.youtube.com")
+        print(f"🛒 Running the [green]Youtube[/green] command.")
+	webbrowser.open("https://www.youtube.com")
 ```
-This provides the ability for the user to define a CLI for custom user commands (in addition to being able to access the decorated functions). You can access a command (eg: videos) with `python -m pybiosis user videos`, or access the GUI CLI with `python -m pybiosis user`.
+This provides the ability for the user to define a CLI for custom  commands (in addition to being able to access the decorated functions). You can access a command (eg: videos) with `python -m pybiosis user videos`, or access the GUI CLI with `python -m pybiosis user`.
+
 4. Finally, you can access your functions through the respective device.
 
 ## Limitations
