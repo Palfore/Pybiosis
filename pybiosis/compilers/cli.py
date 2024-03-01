@@ -12,6 +12,13 @@ import logging
 import sys
 
 
+def play_notification_sound():
+	try:
+		import winsound
+		winsound.PlaySound("SystemAsterisk", winsound.SND_ALIAS)
+	except:
+		pass
+
 class CommandFramework:
 	""" Subclass this class, and create 'add_*' named methods to register them as commands. 
 	
@@ -153,6 +160,8 @@ class CommandFramework:
 				method = getattr(self, method_name)
 				method(setup=None, args=args, unknown_args=unknown_args)
 				print(self.CMD_END(args))
+				if not self.CONFIG.get('no-notify'):  # No beep with `--set no-notify True`; beep with `--set no-notify`.
+					play_notification_sound()
 			else:
 				print(f"Invalid Method Name: {method_name}")
 		else:
@@ -169,11 +178,17 @@ class CommandFramework:
 
 		# Define the GUI CLI
 		@Gooey(
-			program_name=cls.PROGRAM_NAME, 
 			python_executable=sys.executable,
+			program_name=cls.PROGRAM_NAME,
 			default_size=(1000, 700),
-			menu=menu,
+			clear_before_run=True,
 			image_dir=Path(__file__).parent.parent / 'images',
+			menu=menu,
+			fullscreen=False,
+			show_success_modal=False,
+			sidebar_title="Commands",
+			show_stop_warning=False,
+			# richtext_controls=True,  # Seems to fail, would be nice.
         )
 		class GUI_CLI(cls):
 			def __init__(self):

@@ -62,7 +62,7 @@ class RunHelper:
 		return '.'.join(chunks[:min(len(chunks), depth)])
 
 	@classmethod
-	def call_function_by_dot_syntax(cls, info, identifier: str):
+	def call_function_by_dot_syntax(cls, identifier: str):
 		module, function_name = identifier.rsplit('.', 1)
 		module = general.import_module(module.replace('.', os.sep) + '.py')  # We are in the user_path.
 		function = getattr(module, function_name)
@@ -118,14 +118,14 @@ def call_run(args, unknown_args):
 			# For `run identifier`:
 			case argparse.Namespace(run=identifier) if not unknown_args:
 				print("Calling:", identifier)
-				RunHelper.call_function_by_dot_syntax(data, identifier)
+				RunHelper.call_function_by_dot_syntax(identifier)
 
 			case _:
 				print(f"Command to be executed: {args} {unknown_args}")
 				match unknown_args:
 					case [identifier]:
 						print("Calling:", identifier)
-						RunHelper.call_function_by_dot_syntax(data, identifier)					
+						RunHelper.call_function_by_dot_syntax(identifier)
 					case _:
 						raise ValueError("Can't use `call` without identifier. Use `python -m pybiosis call identifier.name`.")
 
