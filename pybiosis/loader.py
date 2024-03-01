@@ -1,13 +1,17 @@
+from pybiosis.util.config import ConfigurationManager
 from pathlib import Path
+import pybiosis.validate as validate
 import importlib
 import glob
-import os
 import sys
+import os
 
 def get_user_path():
 	if '--local' in sys.argv:
 		return Path().absolute()
-	return Path(os.environ.get("PYBIOSIS_USER_PATH"))
+	
+	validate.require_user_path()
+	return Path(ConfigurationManager().get('user_path'))
 
 def get_user_modules():
 	modules = glob.glob(os.path.join(get_user_path(), "**/*.py"), recursive=True)

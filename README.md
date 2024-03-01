@@ -122,7 +122,7 @@ Each function must be accessible at the module level. This means that Pybiosis e
 
 This is what the `register` decorator resolves. It decomposes the nested classes and puts the methods back into the global namespace (this is why `globals()` is used, and why the methods don't take `self`). So, even with the nesting, we can call `monitors.brightness_up()` directly. Note that class attributes _do_ need to be fully qualified: i.e. `Monitor.MAX_BRIGHTNESS` not just `MAX_BRIGHTNESS`.
 
-Furthermore, every decorated function is saved as an execution string (`python ...`) in a `.vbs` a `.bat` file. Those allow us to control whether a debug window pops up, for example. This accessible format allows the functions to be called from other programs that can't easily access python directly. For example, the StreamDeck doesn't easily support executing the right python command, but it easily supports running those script files.
+Furthermore, every decorated function is saved as an execution string (`python ...`) in a `.vbs` and `.bat` file. Those allow us to control whether a debug window pops up, for example. This accessible format allows the functions to be called from other programs that can't easily access python directly. For example, the StreamDeck doesn't easily support executing the right python command, but it easily supports running those script files.
 
 ### Compilers
 Pybiosis comes with some built-in device compilers. You may also define your own if you have a novel device.
@@ -217,7 +217,7 @@ You can also create your own compiler just by inheriting from `Device` (or a sub
 
 ## Installation
 1. Install `Pybiosis` through pip with `pip install pybiosis`.
-2. Create a directory to hold your custom functions and set the Environment Variable `PYBIOSIS_USER_PATH` either using the Windows gui or with the command `setx PYBIOSIS_USER_PATH "your/path/here"`. You may need to restart your terminal.
+2. Create a directory to hold your custom functions and set the Environment Variable `PYBIOSIS_USER_PATH` either using the Windows GUI or with the command `setx PYBIOSIS_USER_PATH "your/path/here"`. You may need to restart your terminal.
 3. Add a file called `driver.py` to that directory and have it contain this code:
     ```python
     import pybiosis
@@ -231,9 +231,9 @@ You can also create your own compiler just by inheriting from `Device` (or a sub
         pybiosis.load()
         pybiosis.Device.compile_all()
     ```
-    You can also create decorators in other python files in the  `PYBIOSIS_USER_PATH` (eg: games.py), and they will also get registered.
+    You can also decorate functions in any python files within the  `PYBIOSIS_USER_PATH` (eg: games.py), and they will also get registered.
 4. Run the python command `import pybiosis; pybiosis.Device.compile_all()` to compile your functions. You may also need admin privileges.
-5. For the CLI, run `python -m pybiosis` (`pybiosis` and `bb` are also registered aliases, see `setup.py`). This will run `main(sys.argv)` in your driver file, which you can use to run a custom CLI.
+5. For the CLI, run `python -m pybiosis` (`pybiosis` and `bb` are also registered aliases, see `setup.py`). This will run `main(sys.argv)` in your driver file, which you can use to run a custom CLI (eg: using `argparse`) or to compile the devices as shown above.
 
 ## Limitations
 1. Most of this functionality is tested on Windows.

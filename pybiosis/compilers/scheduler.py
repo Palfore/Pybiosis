@@ -57,7 +57,11 @@ class Scheduler(Device):
 	EXE = "schtasks"
 	HEADERS = ['values']
 	TASKNAME_PREFIX = "PYBIOSIS_"
-	TEMP_PATH = get_user_path() / '.compilers/scheduler'
+
+	@classmethod
+	@property
+	def TEMP_PATH(self):
+		return get_user_path() / '.compilers/scheduler'
 
 	def __init__(self, trigger, modifier=None, start=None, end=None, day=None, month=None, idle=None):
 		self.values = locals()

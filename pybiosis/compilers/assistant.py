@@ -7,12 +7,12 @@ import glob
 import json
 import itertools as it
 
+## Tasker is a phone app that may be able to use google assistant to communicate between phone and these commands.
 # Okay Google, on pc, play "balloon 6" -> Okay Google, run, balloon 6, in Tasker
 # Okay Google, on pc, play "balloon 6" -> Okay Google, run, pc balloon 6, in Tasker
 # So, I need to make it so that if I ping the server with a particular command, it will dispatch to these functions.
-
-# run -> “start,” “do,” “set,” or “send,”
-# So, on Tasker, if I say "run", it needs to 
+# run -> "start," "do," "set," or "send,"
+# So, on Tasker, if I say "run", it needs to ...
 
 def multi_phrase(*words):
 	""" This function accepts a sequence of lists, where each list corresponds to multiple versions of a word.
@@ -30,11 +30,14 @@ def multi_phrase(*words):
 
 class Assistant(Device):
 	""" A decorator that allows a function to be called from google assistant. """
-
-	DATA_DIRECTORY = get_user_path() / '.compilers/assistant'
-	DATA_DIRECTORY.mkdir(parents=True, exist_ok=True)
-	DATA_FILE = os.path.abspath(DATA_DIRECTORY / 'pybiosis.json')
 	HEADERS = ['phrase']
+
+	@classmethod
+	@property
+	def DATA_FILE(self):
+		DATA_DIRECTORY = get_user_path() / '.compilers/assistant'
+		DATA_DIRECTORY.mkdir(parents=True, exist_ok=True)
+		return os.path.abspath(DATA_DIRECTORY / 'pybiosis.json')
 
 	def __init__(self, phrase):
 		"""

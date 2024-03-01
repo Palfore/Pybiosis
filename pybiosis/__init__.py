@@ -13,6 +13,7 @@ import json
 import time
 import sys
 import os
+from pybiosis.__version__ import __version__
 
 PRINTING_COLORS = type('Colors', (object,), {
 	'main': Fore.GREEN,
@@ -23,6 +24,7 @@ PRINTING_COLORS = type('Colors', (object,), {
 
 def load():
 	""" Loads the modules located in PYBIOSIS_USER_PATH. """
+	sys.path.insert(1, str(get_user_path()))
 	load_user_modules()
 
 def apply_list(decorators):
@@ -77,6 +79,7 @@ class Device:
 
 	HEADERS = ['title', 'description', 'name', 'module', 'show', 'pause']  # All self parameters assigned in __call__
 	FUNCTIONS = []
+	PRIORITY = 0
 
 	def __init__(self, title=None, description=None, show=None, pause=None):
 		""" If no title is provided, the capitalized function name is used with _ and __ replaced by ' ' and '\n'. """
@@ -155,7 +158,7 @@ class Device:
 		raise NotImplementedError
 
 	@staticmethod
-	def compile_all(priority=None):
+	def compile_all():
 		# If a function is decorated multiple times, the Device decorator
 		# parameters only affects the bottom-most decorator.
 		# This means that the Device.HEADERS don't propagate to each function.
@@ -165,7 +168,6 @@ class Device:
 		# So, looping over it like this leaves the one with the true values in 'rename'.
 		#
 		# I need to preserve the order that the functions are entered.
-
 		functions = Device.FUNCTIONS
 		rename = {f.__name__: tuple([getattr(f, h) for h in Device.HEADERS]) for c, f in functions}
 		for c, f in functions:
@@ -175,28 +177,25 @@ class Device:
 		# Printing and Compiling
 		init(autoreset=True)
 		print(PRINTING_COLORS.main + f'Compiling {len(Device.__subclasses__())} Device(s)')
-		
 		start = time.time()
-		if priority is None:
-			devices = Device.__subclasses__()
-		else:
-			devices = []  # Sort by priority
-			for i in range(max(priority.values()), -1, -1):
-				classes_with_priority_i = [cls for cls, p in priority.items() if p == i]
-				devices.extend(classes_with_priority_i)
+		
+		# We add the devices in order of priority
+		priority = {device: device.PRIORITY for device in Device.__subclasses__()}
+		devices = []  # Sort by priority
+		for i in range(max(priority.values()), -1, -1):
+			classes_with_priority_i = [cls for cls, p in priority.items() if p == i]
+			devices.extend(classes_with_priority_i)
 
-			for device in Device.__subclasses__():
-				if device not in devices:
-					devices.append(device)
-
+		# Then we compile the devices.
 		for device in devices:
 			try:
 				device.compile([f for c, f in functions if c == device])
 				print()
 			except validate.InvalidEnvironment as e:
 				print(Fore.RED + f'Could not load {device.__name__} compiler due to:', e)
-		end = time.time()
 
+		# Print summary information
+		end = time.time()
 		print(end=PRINTING_COLORS.main+f'Finished Compiling in {end-start:.1f} Seconds. ')
 		print(end=PRINTING_COLORS.device+f'There were {len(Device.__subclasses__())} Devices with {len(functions)} Functions: ')
 		print(end=PRINTING_COLORS.function+str({sc.__name__: len([f for c, f in functions if c == sc]) for sc in Device.__subclasses__()})[1:-1].replace("'", '')+'.')

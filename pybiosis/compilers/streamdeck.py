@@ -13,9 +13,13 @@ class StreamDeck(Device):
 	""" A decorator that allows a function to be called from a StreamDeck button. """
 
 	HEADERS = ['location', 'image', 'setter']
-	TEMP_PATH = get_user_path() / '.compilers/streamdeck'
 	NUM_ROWS = 3
 	NUM_COLUMNS = 5
+
+	@classmethod
+	@property
+	def TEMP_PATH(self):
+		return get_user_path() / '.compilers/streamdeck'
 	
 	def __init__(self, location, image=None, setter=None): 
 		self.location = location
