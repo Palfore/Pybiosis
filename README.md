@@ -4,11 +4,10 @@
 > What could empower you more than a symbiotic relationship with Python?
 
 Pybiosis is an automation software that focuses on making python functions more accessible by providing versatile entry-points to functions.
-This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler).
+This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler). Pybiosis also provides a CLI, GUI CLI (using gooey), and GUI (using streamlit) to access these functions.
 
 ## Examples
-Here is a showcase of a function that is hooked up to several devices and services.
-
+Wrap your functions in decorators to add entry points from other devices and services:
 ```python
 from pybiosis import *
 
@@ -22,6 +21,10 @@ def spire():
     os.system(Rf'cmd.exe /C START "" "{path_to_game}"')
 ```
 
+
+In this example, I can launch the game or any function from: a Graphical User Interface (GUI), a Command-Line Interface (CLI), Voice Commands (through Google Assistant), the StreamDeck Hardware, and on a schedule. 
+
+---
 Let's unpack all of that!
 
 First, the function itself `spire()` launches a game called [Slay the Spire](https://store.steampowered.com/app/646570/Slay_the_Spire) from my  installation folder for games.
@@ -217,23 +220,39 @@ You can also create your own compiler just by inheriting from `Device` (or a sub
 
 ## Installation
 1. Install `Pybiosis` through pip with `pip install pybiosis`.
-2. Create a directory to hold your custom functions and set the Environment Variable `PYBIOSIS_USER_PATH` either using the Windows GUI or with the command `setx PYBIOSIS_USER_PATH "your/path/here"`. You may need to restart your terminal.
+2. Create a directory to hold your custom functions and run `python -m pybiosis config --set user_path /Path/To/My/User/Path`.
 3. Add a file called `driver.py` to that directory and have it contain this code:
     ```python
     import pybiosis
     import winsound
     
-    # Add whatever decorators you want here.
+    @pybiosis.Device()  # Add additional decorators here.
     def beep():
         winsound.Beep(1000, 200)
-        
-    def main(args): 
-        pybiosis.load()
-        pybiosis.Device.compile_all()
     ```
-    You can also decorate functions in any python files within the  `PYBIOSIS_USER_PATH` (eg: games.py), and they will also get registered.
-4. Run the python command `import pybiosis; pybiosis.Device.compile_all()` to compile your functions. You may also need admin privileges.
-5. For the CLI, run `python -m pybiosis` (`pybiosis` and `bb` are also registered aliases, see `setup.py`). This will run `main(sys.argv)` in your driver file, which you can use to run a custom CLI (eg: using `argparse`) or to compile the devices as shown above.
+    You can also decorate functions in any python files within your user path (eg: user_path/games.py), and they will also get registered.
+
+## Usage
+A CLI, GUI wrapper for that CLI, and a GUI provide general access to these functions. Otherwise, they are accessible through the attached device/service.
+
+1. Run `python -m pybiosis --help` to learn about the CLI, which includes `compile`, `config`, `run`, and `user` commands. All decorated functions are accessible through the CLI.
+2. Run `python -m pybiosis` to launch the CLI as a GUI (thanks to [gooey](https://github.com/chriskiehl/Gooey)). This GUI opens by default if no command is specified when invoking `pybiosis`.
+3. It is highly recommended to provide a CLI for your driver.py file:
+```python
+from pybiosis.compilers.cli import CommandFramework
+from rich import print  # Optional `pip install rich`
+
+class Commands(CommandFramework):
+def add_videos(self, setup, args):
+		if setup:
+            pass # Use setup.add_arguments(...) to add parameters.
+			return
+
+		print(f"🛒 Running the [green]Youtube[/green] command.")
+		webbrowser.open("https://www.youtube.com")
+```
+This provides the ability for the user to define a CLI for custom user commands (in addition to being able to access the decorated functions). You can access a command (eg: videos) with `python -m pybiosis user videos`, or access the GUI CLI with `python -m pybiosis user`.
+4. Finally, you can access your functions through the respective device.
 
 ## Limitations
 1. Most of this functionality is tested on Windows.
@@ -241,10 +260,8 @@ You can also create your own compiler just by inheriting from `Device` (or a sub
 
 ## Future Work
 1. Stream Deck folders cannot be generated programmatically, and deleting is not yet supported.
-2. It seems natural to support a CLI and possibly a GUI to manage the functions.
-3. Use a config instead of environment variable to set the user path.
-4. Add tools like monitor control, audio controls, usb devices, games, GUI automation, dashboard.
-5. Add examples folder.
+2. Add tools like monitor control, audio controls, usb devices, games, GUI automation, dashboard.
+3. Add examples folder.
 
 
 ## Questions?
