@@ -63,3 +63,6 @@ class ConfigurationManager:
 
     def get(self, key, default=None):
         return self.config.get(key, default)
+
+    def has(self, key):
+        return key in self.config

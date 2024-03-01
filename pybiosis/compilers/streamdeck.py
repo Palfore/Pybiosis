@@ -1,5 +1,5 @@
 import pybiosis.validate as validate
-from pybiosis import PRINTING_COLORS, Device, print_function_header
+from pybiosis.core import PRINTING_COLORS, Device, print_function_header
 from pybiosis.utility import save_function
 from pybiosis.loader import get_user_path
 from pathlib import Path

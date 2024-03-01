@@ -3,11 +3,13 @@
 For functionality, see `pybiosis.commands`.
 """
 from pybiosis.compilers.cli import CommandFramework
+from pybiosis.util.config import ConfigurationManager
+from pathlib import Path
 from rich import print
 import pybiosis.commands as commands
 import pybiosis.util.general as general
 import pybiosis.loader as loader
-import pybiosis
+import pybiosis.core as pybiosis
 import atexit
 import sys
 
@@ -20,9 +22,13 @@ class Commands(CommandFramework):
 	def add_run(self, setup, args, **kwargs):
 		""" Run and search for functions to run. """
 
-		with general.ChangeDir(loader.get_user_path()):
-			pybiosis.load()
-			_, cmds = commands.RunHelper.load_data()
+		manager = ConfigurationManager()
+		if manager.has('user_path'):
+			with general.ChangeDir(loader.get_user_path()):
+				pybiosis.load()
+				_, cmds = commands.RunHelper.load_data()
+		else:
+			cmds = []
 
 		if setup:
 			setup.add_argument('-r', '--run', choices=sorted(list(cmds)), help='Run a command')
@@ -62,10 +68,18 @@ class Commands(CommandFramework):
 		print("⚙️ Running the [green]CONFIG[/green] command.")
 		commands.call_config(args, None, config_variables=self.CONFIG_VARIABLES)
 
+	def add_gui(self, setup, args, **kwargs):
+		""" Access functionality through the GUI. """
+		if setup:
+			return
+
+		print("🖥️ Running the [green]GUI[/green] command.")
+		commands.call_gui(args, None)
+
+
+
 
 def main():
-	from pathlib import Path
-
 	# On windows, we need to ensure that the executable is accessible.
 	# It turns out `bb` command needs to call `bb.exe`, so we need to manually append if missing.
 	# Using the existence of files makes this more robust than querying hardware.

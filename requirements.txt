@@ -1,3 +1,4 @@
 colorama
 requests
 gooey
+rich_argparse

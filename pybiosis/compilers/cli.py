@@ -5,7 +5,7 @@ from rich_argparse import RichHelpFormatter
 from gooey import Gooey, GooeyParser
 from datetime import datetime
 from pathlib import Path
-from pybiosis.loader import get_user_path
+from pybiosis.util.config import ConfigurationManager
 import argparse
 import platform
 import logging
@@ -38,65 +38,62 @@ class CommandFramework:
 	CMD_START: callable = lambda self, args: f"⚡ CLI Executing Command: {args.cmd} with args {args}\n{self.HEADER}"
 	CMD_END: callable = lambda self, args: f"{self.HEADER}\n👋 Thanks for Running Your Command!"
 	GOOEY_DESCRIPTION_WORKAROUND: str = "|--------------------|"
+	CONFIG = ConfigurationManager()
 
-	DEFAULT_MENU = [
-		{
-			'name': 'File',
-			'items': [{
-		        'type': 'AboutDialog',
-		        'menuTitle': 'About',
-		        'name': 'Pybiosis Graphical Interface',
-		        'description': 'Access to all your pybiosis functions!',
-		        'version': f"v{__version__}",
-		        'copyright': f"Python {sys.version.split()[0]} - {platform.system()} - ©️{str(datetime.now().year)}",
-		        'website': 'https://github.com/Palfore/Pybiosis/tree/main',
-		        'developer': 'Palfore.com',
-		        'license': 'MIT'
-		    }, {
-		        'type': 'MessageDialog',
-		        'menuTitle': 'Information',
-		        'caption': 'Overview',
-		        'message': 'Here, you can access Pybiosis functions, and your user functions.'
-		    }, {
-		        'type': 'Link',
-		        'menuTitle': 'Visit Our Site',
-		        'url': 'https://github.com/Palfore/Pybiosis/tree/main'
-		    }]
-		}, {
-			'name': 'Open',
-			'items': [
-				{
-				    'type': 'Link',
-				    'menuTitle': 'Driver',
-				    'url': fR"file://{get_user_path() / 'driver.py'}",
-				},
-				{
-				    'type': 'Link',
-				    'menuTitle': 'Config',
-				    'url': fR"file://{Path(__file__).parent.parent / '.config.json'}",
-				},
-				{
-				    'type': 'Link',
-				    'menuTitle': 'Library',
-				    'url': fR'file://{Path(__file__).parent.parent}',
-				},
-			]
-		}, {
-			'name': 'Help',
-			'items': [{
-			    'type': 'Link',
-			    'menuTitle': 'Documentation',
-			    'url': 'https://github.com/Palfore/Pybiosis/tree/main'
-			}]
-		}
-	]
 
-	# def call(self, method, setup, args=None, unknown_args=None):
-	# 	""" If setup is not None, this call setups the args. If setup is None, the call is executed. """
-	# 	try:  # We allow methods to leave unknown_args out of the function signature.
-	# 		return method(setup=setup, args=args, unknown_args=unknown_args)  # Ignore "TypeError: Commands.add_call() got an unexpected keyword argument 'unknown_args'", it is expected.
-	# 	except TypeError:
-	# 		return method(setup=setup, args=args)
+	@classmethod
+	@property
+	def DEFAULT_MENU(cls):
+		return [
+			{
+				'name': 'File',
+				'items': [{
+			        'type': 'AboutDialog',
+			        'menuTitle': 'About',
+			        'name': 'Pybiosis Graphical Interface',
+			        'description': 'Access to all your pybiosis functions!',
+			        'version': f"v{__version__}",
+			        'copyright': f"Python {sys.version.split()[0]} - {platform.system()} - ©️{str(datetime.now().year)}",
+			        'website': 'https://github.com/Palfore/Pybiosis/tree/main',
+			        'developer': 'Palfore.com',
+			        'license': 'MIT'
+			    }, {
+			        'type': 'MessageDialog',
+			        'menuTitle': 'Information',
+			        'caption': 'Overview',
+			        'message': 'Here, you can access Pybiosis functions, and your user functions.'
+			    }, {
+			        'type': 'Link',
+			        'menuTitle': 'Visit Our Site',
+			        'url': 'https://github.com/Palfore/Pybiosis/tree/main'
+			    }]
+			}, {
+				'name': 'Open',
+				'items': ([{
+						    'type': 'Link',
+						    'menuTitle': 'Driver',
+						    'url': fR"file://{Path(cls.CONFIG.get('user_path')) / 'driver.py'}",
+						}] if cls.CONFIG.has('user_path') else []) + [
+						{
+						    'type': 'Link',
+						    'menuTitle': 'Config',
+						    'url': fR"file://{Path(__file__).parent.parent / '.config.json'}",
+						},
+						{
+						    'type': 'Link',
+						    'menuTitle': 'Library',
+						    'url': fR'file://{Path(__file__).parent.parent}',
+						},
+					]
+			}, {
+				'name': 'Help',
+				'items': [{
+				    'type': 'Link',
+				    'menuTitle': 'Documentation',
+				    'url': 'https://github.com/Palfore/Pybiosis/tree/main'
+				}]
+			}
+		]
 
 	def build(self, gui: bool=False) -> dict:
 		""" Attaches all the commands to the CLI.

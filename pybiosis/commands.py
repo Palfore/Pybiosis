@@ -3,7 +3,7 @@ from pathlib import Path
 from pybiosis.util.config import ConfigurationManager
 import pybiosis.util.general as general
 import pybiosis.loader as loader
-import pybiosis
+import pybiosis.core as pybiosis
 import subprocess
 import argparse
 import sys
@@ -173,3 +173,8 @@ def call_config(args, unknown_args, config_variables):
 		case _:
 			print(f"Listing")
 			manager.list_config()
+
+
+def call_gui(args, unknown_args):
+	module = Path(__file__).parent / 'compilers' / 'gui.py'
+	os.system(f"{sys.executable} -m streamlit run {module}")
