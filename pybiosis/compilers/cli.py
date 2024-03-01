@@ -49,7 +49,7 @@ class CommandFramework:
 		        'version': f"v{__version__}",
 		        'copyright': f"Python {sys.version.split()[0]} - {platform.system()} - ©️{str(datetime.now().year)}",
 		        'website': 'https://github.com/Palfore/Pybiosis/tree/main',
-		        'developer': 'Palfore: https://palfore.com/',
+		        'developer': 'Palfore.com',
 		        'license': 'MIT'
 		    }, {
 		        'type': 'MessageDialog',
@@ -66,11 +66,6 @@ class CommandFramework:
 			'items': [
 				{
 				    'type': 'Link',
-				    'menuTitle': 'Library',
-				    'url': fR'file://{Path(__file__).parent.parent}',
-				},
-				{
-				    'type': 'Link',
 				    'menuTitle': 'Driver',
 				    'url': fR"file://{get_user_path() / 'driver.py'}",
 				},
@@ -78,6 +73,11 @@ class CommandFramework:
 				    'type': 'Link',
 				    'menuTitle': 'Config',
 				    'url': fR"file://{Path(__file__).parent.parent / '.config.json'}",
+				},
+				{
+				    'type': 'Link',
+				    'menuTitle': 'Library',
+				    'url': fR'file://{Path(__file__).parent.parent}',
 				},
 			]
 		}, {
@@ -169,7 +169,8 @@ class CommandFramework:
 			program_name=cls.PROGRAM_NAME, 
 			python_executable=sys.executable,
 			default_size=(1000, 700),
-			menu=menu
+			menu=menu,
+			image_dir=Path(__file__).parent.parent / 'images',
         )
 		class GUI_CLI(cls):
 			def __init__(self):
@@ -181,7 +182,7 @@ class CommandFramework:
 				self.parser = argparse.ArgumentParser(description=f"{cls.PROGRAM_NAME}!\n{cls.DESCRIPTION}", formatter_class=RichHelpFormatter)
 
 		# Dispatch to the right CLI type, and further dispatch the function call.
-		args = [a for a in args if not a.startswith('--')]
+		args = [a for a in args if (not a.startswith('--') or a == '--help')]  # Not sure why we prevent '--'?
 		if len(args) == 1:  # No actual args, just the default sys.argv[0] == pybioisis_script.
 			print("🚀 Launching the CLI as a GUI (🖥️).")
 			cli = GUI_CLI()
@@ -191,4 +192,4 @@ class CommandFramework:
 			cli = CLI()
 			args, unknown_args = cli.build(gui=False)
 			cli.dispatch(args, unknown_args)
-		
+

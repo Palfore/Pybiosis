@@ -39,10 +39,11 @@ class Commands(CommandFramework):
 			return
 		
 		print(f"🛠️ Running the [green]COMPILE[/green] command.")
-		commands.call_compile(args, None)
+		commands.call_compile(args, None)  # TODO: for some reason, this hangs...
 		
 	def add_user(self, setup, args, unknown_args):
 		""" This calls the user's driver.py module. """
+		# TODO: It seems like `python -m pybiosis user --help` fails. (doesn't get here)
 		if setup:
 			return
 

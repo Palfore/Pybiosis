@@ -133,8 +133,6 @@ def call_compile(args, unknown_args):
 		pybiosis.load()
 		pybiosis.Device.compile_all()
 
-	# TODO: for some reason, this hangs...
-
 def call_user(args, unknown_args):
 	# Option 1) Use sys.argv
 	# sys.argv.pop(sys.argv.index("user"))  # Remove the 'user' command.
