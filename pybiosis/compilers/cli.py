@@ -22,17 +22,15 @@ def play_notification_sound():
 class CommandFramework:
 	""" Subclass this class, and create 'add_*' named methods to register them as commands. 
 	
-	The function must take: self, setup, args.
-	The function may take: unknown_args.
 	Here is an example:
 
 	```python
-	def add_my_new_command(self, setup, args, unknown_args):
+	def add_my_new_command(self, setup, args, **kwargs):
 		if setup:
 			setup.add_argument(...)
 			return
 
-		pass # Perform function using args, and potentially unknown_args.
+		pass # Perform function using args, and potentially `kwargs.get('unknown_args')`.
 	```
 	"""
 
@@ -106,7 +104,7 @@ class CommandFramework:
 		""" Attaches all the commands to the CLI.
 
 		Register a command by creating a method starting with "add_".
-		It must accept (self, setup, args). 
+		It must accept (self, setup, args, **kwargs). 
 		The name in add_name is used as the command name in the CLI.
 		The description is taken from the Doc string of the function if it exists.
 
@@ -132,7 +130,7 @@ class CommandFramework:
 				method(setup=parser, args=None)
 
 		if gui:
-			return self.parser.parse_args()
+			return self.parser.parse_args()  # When using gooey, this will launch the GUI.
 		return self.parser.parse_known_args()
 		
 	def dispatch(self, args, unknown_args=None) -> None:
@@ -141,7 +139,7 @@ class CommandFramework:
 		It assumes that since it is calling the methods with parser=None, that the method
 		will execute their intended logic (not the setup aspect).
 
-		add_ functions must take 'setup', 'args'; and optionally 'unknown_args'.
+		add_ functions must take 'setup', 'args', and '**kwargs'.
 		"""
 		assert args, f"Args should exist as a Namespace, but doesn't? {args}"
 		

@@ -74,23 +74,22 @@ def main():
 							grouped_data[prefix] = []
 						grouped_data[prefix].append( {**layout[string_key], 'coords': coords})
 
-		st.write("### StreamDeck")
-		NUM_ROWS = 4
+		NUM_ROWS = 3
 		NUM_COLS = 5
-		location = st.selectbox(f"Select a location: ", sorted(list(grouped_data)))
+		st.write("### StreamDeck")
+		location = st.selectbox(f"Select a location: ", sorted([g for g in grouped_data if (',' not in g)]))
 		st.write('---')
 
 		mapping = {}
 		for function in grouped_data[location]:
 			mapping[function['coords']] = function
-
 		button_info = [  # Define labels and tool tips for buttons
 		    {
 		    	"label": mapping.get(f"{i},{j}", {'name': f'{i},{j}'})['name'],
 		    	# "tooltip": mapping.get(f"{i},{j}", {'description': f'{i},{j}'})['description'],
 		    	"tooltip": f"{i},{j}",  # Description not yet supported
 		    	"function": mapping.get(f"{i},{j}"),
-		    } for i in range(NUM_ROWS) for j in range(NUM_COLS)
+		    } for j in range(NUM_ROWS) for i in range(NUM_COLS)
 		]
 		create_grid(NUM_ROWS, NUM_COLS, button_info)
 

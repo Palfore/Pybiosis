@@ -4,9 +4,10 @@
 > What could empower you more than a symbiotic relationship with Python?
 
 Pybiosis is an automation software that focuses on making python functions more accessible by providing versatile entry-points to functions.
-This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler). Pybiosis also provides a CLI, GUI CLI (using gooey), and GUI (using streamlit) to access these functions.
+This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler). Pybiosis also provides a CLI, a _GUI_ CLI (using [gooey](https://github.com/chriskiehl/Gooey/tree/master), and GUI (using [streamlit](https://github.com/streamlit/streamlit)) to access these functions.
 
-## Examples
+## How It Works
+### Example:
 Wrap your functions in decorators to add entry points from other devices and services:
 ```python
 from pybiosis import *
@@ -22,7 +23,7 @@ def spire():
 ```
 
 
-In this example, I can launch the game or any function from: a Graphical User Interface (GUI), a Command-Line Interface (CLI), Voice Commands (through Google Assistant), the StreamDeck Hardware, and on a schedule. 
+In this example, I can launch a selected game from: a Graphical User Interface (GUI), a Command-Line Interface (CLI), Voice Commands (through Google Assistant), the StreamDeck Hardware, and on a schedule. 
 
 ---
 Let's unpack all of that!
@@ -44,7 +45,7 @@ Then, there are the decorators:
 - ```@Scheduler(trigger="Daily", start="today-5:01pm")```
     - The `Scheduler` decorator executes the provided function regularly, in this case right on time to unwind!
 
-### General:
+### Decorators:
 Each decorator is powered by a compiler that connects that function to a given service or device. Here are some basic examples. See [Compilers](#compilers) below for more details.
 
 1. Create a simple function. 
@@ -127,10 +128,10 @@ This is what the `register` decorator resolves. It decomposes the nested classes
 
 Furthermore, every decorated function is saved as an execution string (`python ...`) in a `.vbs` and `.bat` file. Those allow us to control whether a debug window pops up, for example. This accessible format allows the functions to be called from other programs that can't easily access python directly. For example, the StreamDeck doesn't easily support executing the right python command, but it easily supports running those script files.
 
-### Compilers
+## Compilers
 Pybiosis comes with some built-in device compilers. You may also define your own if you have a novel device.
 
-#### StreamDeck
+### StreamDeck
 Requires a [StreamDeck](https://www.elgato.com/en/stream-deck).
 
 1. Specify a location for the button to be placed specifying a folder, row, and column. See [Limitations](#limitations) about needing to _manually_ create folders through the StreamDeck GUI.
@@ -152,7 +153,7 @@ Requires a [StreamDeck](https://www.elgato.com/en/stream-deck).
         pass
     ```
 If you use multiple StreamDeck profiles, you can set the Environment Variable `PYBIOSIS_PROFILE_ID` to the desired identifier (without `.sdProfile`). The identifiers can be found in `AppData\Roaming\Elgato\StreamDeck\ProfilesV2`.
-#### Google Assistant
+### Google Assistant
 Requires a [Push2Run](https://www.push2run.com/) installation and access to a Google Assistant device. Push2Run has been tested with the Dropbox method and the key phrase "on pc", although the API has historically been depreciated and possibly restored, so please check the link for the current status.
 
 1. The simpliest way to register a command is with a single word.
@@ -181,7 +182,7 @@ Requires a [Push2Run](https://www.push2run.com/) installation and access to a Go
         os.system(R'jre\bin\java.exe -jar mts-launcher.jar')
     ```
 
-#### Scheduler
+### Scheduler
 Requires a Windows machine. No installation is required since it uses the Windows Task Scheduler. See [`schtasks.exe`](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks-create) for more details on usage.
 
 1. Schedule a function to run now (in the next minute).
@@ -215,11 +216,40 @@ Requires a Windows machine. No installation is required since it uses the Window
         import winsound
         winsound.Beep(1000, 200)
     ```
-#### Custom
+
+### CLI
+
+You can access the full CLI, including any functions that are decorated (using `run`).
+```bash
+python -m pybiosis --help  # Get CLI usage information.
+python -m pybiosis config --set user_path /Path/To/User/Path/  # Set the user path.
+python -m pybiosis config --list  # List config variables.
+python -m pybiosis compile  # Compile all decorated functions.
+python -m pybiosis user  # Launch the user driver.py file (could be a CLI or main module).
+python -m pybiosis run monitors.to_70  # Run a specific user function.
+python -m pybiosis gui  # Launch the GUI to access functions graphically.
+python -m pybiosis  # Launch the CLI as a simple GUI.
+```
+Please note that two aliases are also registered: `pybiosis` and `bb`, so you can run:
+```bash
+python -m pybiosis # Launch the CLI as a simple GUI.
+pybiosis # Use a short form
+bb  # Even shorter
+```
+
+See usage for more.
+
+### GUI
+
+Each compiler may implement a GUI (using `streamlit`) to provide more tailored access to their functions through a GUI. This improves ease of use over the GUI CLI, but it requires additional development time to create.
+
+See usage for more.
+
+### Custom
 You can also create your own compiler just by inheriting from `Device` (or a subclass). Check out the existing implementations for ideas.
 
 ## Installation
-1. Install `Pybiosis` through pip with `pip install pybiosis`.
+1. Install `Pybiosis` through pip with `pip install pybiosis`. For the latest version, simply use Githuib Desktop (or Git) to clone this repository and use `pip install -r requirements.txt -e .` in the directory with `setup.py`.
 2. Create a directory to hold your custom functions and run `python -m pybiosis config --set user_path /Path/To/My/User/Path`.
 3. Add a file called `driver.py` to that directory and have it contain this code:
     ```python
@@ -235,13 +265,16 @@ You can also create your own compiler just by inheriting from `Device` (or a sub
 ## Usage
 A CLI, GUI wrapper for that CLI, and a GUI provide general access to these functions. Otherwise, they are accessible through the attached device/service.
 
-1. Run `python -m pybiosis --help` to learn about the CLI, which includes `compile`, `config`, `run`, and `user` commands. All decorated functions are accessible through the CLI.
+1. Run `python -m pybiosis --help` to learn about the CLI, which includes `config`, `compile`, `run`, `gui`, and `user` commands. All decorated functions are accessible through the CLI.
+
 ![something](pybiosis/images/CLI.png)
 
 2. Run `python -m pybiosis` to launch the CLI as a GUI (thanks to [gooey](https://github.com/chriskiehl/Gooey)). This GUI opens by default if no command is specified when invoking `pybiosis`.
+
 ![The CLI as a GUI](pybiosis/images/CLI_GUI.png)
 
 3. It is highly recommended to provide a CLI for your driver.py file:
+
 ```python
 from pybiosis.compilers.cli import CommandFramework
 from rich import print  # Optional `pip install rich`
@@ -257,16 +290,22 @@ class Commands(CommandFramework):
 ```
 This provides the ability for the user to define a CLI for custom  commands (in addition to being able to access the decorated functions). You can access a command (eg: videos) with `python -m pybiosis user videos`, or access the GUI CLI with `python -m pybiosis user`.
 
-4. Finally, you can access your functions through the respective device.
+4. The command `python -m pybiosis gui` will launch a GUI for you to access the device functions. 
+
+![The GUI, showing the streamdeck page.](pybiosis/images/GUI.png)
+
+5. Finally, you can access your functions through the respective device.
 
 ## Limitations
 1. Most of this functionality is tested on Windows.
 2. If you get a password prompt from Push2Run, simply recompile until it stops.
 
 ## Future Work
-1. Stream Deck folders cannot be generated programmatically, and deleting is not yet supported.
-2. Add tools like monitor control, audio controls, usb devices, games, GUI automation, dashboard.
-3. Add examples folder.
+1. Stream Deck folders cannot be generated programmatically yet, nor is deleting supported.
+2. Make the PYBIOSIS_USER_PATH variable a config variable, rather than an environment one.
+3. Fill out the GUI. Each device subclass should implement their own widget.
+4. Add tools like monitor control, audio controls, usb devices, games, GUI automation, dashboard.
+5. Add examples folder.
 
 
 ## Questions?
