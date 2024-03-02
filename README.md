@@ -4,7 +4,7 @@
 > What could empower you more than a symbiotic relationship with Python?
 
 Pybiosis is an automation software that focuses on making python functions more accessible by providing versatile entry-points to functions.
-This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler). Pybiosis also provides a CLI, a _GUI_ CLI (using [gooey](https://github.com/chriskiehl/Gooey/tree/master), and GUI (using [streamlit](https://github.com/streamlit/streamlit)) to access these functions.
+This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler). Pybiosis also provides a CLI, a _GUI_ CLI (using [gooey](https://github.com/chriskiehl/Gooey/tree/master)), and GUI (using [streamlit](https://github.com/streamlit/streamlit)) to access these functions.
 
 ## How It Works
 ### Example:
