@@ -52,10 +52,11 @@ class Commands(CommandFramework):
 		# TODO: It seems like `python -m pybiosis user --help` fails. (doesn't get here)
 		if setup:
 			setup.add_argument('-d', '--detached', action='store_true', help="Run as a detached process [only use in GUI CLI].")
+			setup.add_argument('-w', '--no-wait', action='store_true', help="Don't wait for the process to finish (calls are blocking by default).")
 			return
 
 		print("👨 Running the [green]USER[/green] command.")
-		commands.call_user(args.detached, args, kwargs.get('unknown_args'))
+		commands.call_user(args.detached, not args.no_wait, args, kwargs.get('unknown_args'))
 
 	def add_config(self, setup, args, **kwargs):
 		""" Access the config functionality. """

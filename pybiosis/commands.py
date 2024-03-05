@@ -135,7 +135,7 @@ def call_compile(args, unknown_args):
 		pybiosis.Device.compile_all()
 
 
-def call_user(gui, args, unknown_args):
+def call_user(gui, wait, args, unknown_args):
 	command_list = [sys.executable, 'driver.py'] + unknown_args
 	if gui:
 		subprocess.Popen(command_list, cwd=loader.get_user_path(),
@@ -144,7 +144,10 @@ def call_user(gui, args, unknown_args):
 			stderr=subprocess.PIPE,			
 		)
 	else:
-		subprocess.Popen(command_list, cwd=loader.get_user_path())
+		process = subprocess.Popen(command_list, cwd=loader.get_user_path())
+	
+	if wait:
+		process.wait()
 
 
 def call_config(args, unknown_args, config_variables):

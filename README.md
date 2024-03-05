@@ -241,7 +241,7 @@ See usage for more.
 
 ### GUI
 
-Each compiler may implement a GUI (using `streamlit`) to provide more tailored access to their functions through a GUI. This improves ease of use over the GUI CLI, but it requires additional development time to create.
+Each compiler may implement a GUI (using `streamlit`) to provide more tailored access to their functions. This improves ease of use over the GUI CLI, but it requires additional development time to create.
 
 See usage for more.
 
@@ -263,7 +263,7 @@ You can also create your own compiler just by inheriting from `Device` (or a sub
     You can also decorate functions in any python files within your user path (eg: user_path/games.py), and they will also get registered.
 
 ## Usage
-A CLI, GUI wrapper for that CLI, and a GUI provide general access to these functions. Otherwise, they are accessible through the attached device/service.
+A CLI, a GUI wrapper for that CLI, and a GUI provide general access to these functions. Otherwise, they are accessible through the attached device/service.
 
 1. Run `python -m pybiosis --help` to learn about the CLI, which includes `config`, `compile`, `run`, `gui`, and `user` commands. All decorated functions are accessible through the CLI.
 
@@ -294,7 +294,7 @@ This provides the ability for the user to define a CLI for custom  commands (in 
 
 ![The GUI, showing the streamdeck page.](pybiosis/images/GUI.png)
 
-5. Finally, you can access your functions through the respective device.
+5. Finally, you can access your functions through the respective device (eg: google assistant, streamdeck, waiting for the scheduler).
 
 ## Limitations
 1. Most of this functionality is tested on Windows.
@@ -303,9 +303,10 @@ This provides the ability for the user to define a CLI for custom  commands (in 
 ## Future Work
 1. Stream Deck folders cannot be generated programmatically yet, nor is deleting supported.
 2. Make the PYBIOSIS_USER_PATH variable a config variable, rather than an environment one.
-3. Fill out the GUI. Each device subclass should implement their own widget.
+3. Fill out the GUI. Each device subclass should implement their own widget. For now, only the `StreamDeck` does.
 4. Add tools like monitor control, audio controls, usb devices, games, GUI automation, dashboard.
-5. Add examples folder.
+5. Add keyboard and mouse decorators, eg: `@Click(region=(...))`, `@Press(combo=['SHIFT', 'A'])`. Add new cli command `monitor`/`watch`. Likely to use pip libraries [`keyboard`](https://pypi.org/project/keyboard/) and [`mouse`](https://pypi.org/project/mouse/).
+6. Add examples folder.
 
 
 ## Questions?
