@@ -4,7 +4,7 @@
 > What could empower you more than a symbiotic relationship with Python?
 
 Pybiosis is an automation software that focuses on making python functions more accessible by providing versatile entry-points to functions.
-This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler). Pybiosis also provides a CLI, a _GUI_ CLI (using [gooey](https://github.com/chriskiehl/Gooey/tree/master)), and GUI (using [streamlit](https://github.com/streamlit/streamlit)) to access these functions.
+This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler). Pybiosis also provides a CLI, a _GUI_ CLI (using [gooey](https://github.com/chriskiehl/Gooey/tree/master)), and a GUI (using [streamlit](https://github.com/streamlit/streamlit)) to access these functions.
 
 ## How It Works
 ### Example:
@@ -23,7 +23,7 @@ def spire():
 ```
 
 
-In this example, I can launch a selected game from: a Graphical User Interface (GUI), a Command-Line Interface (CLI), Voice Commands (through Google Assistant), the StreamDeck Hardware, and on a schedule. 
+In this example, I can launch the specified game from: a Graphical User Interface (GUI), a Command-Line Interface (CLI), Voice Commands (through Google Assistant), the StreamDeck Hardware, and on a schedule. 
 
 ---
 Let's unpack all of that!
@@ -126,7 +126,7 @@ Each function must be accessible at the module level. This means that Pybiosis e
 
 This is what the `register` decorator resolves. It decomposes the nested classes and puts the methods back into the global namespace (this is why `globals()` is used, and why the methods don't take `self`). So, even with the nesting, we can call `monitors.brightness_up()` directly. Note that class attributes _do_ need to be fully qualified: i.e. `Monitor.MAX_BRIGHTNESS` not just `MAX_BRIGHTNESS`.
 
-Furthermore, every decorated function is saved as an execution string (`python ...`) in a `.vbs` and `.bat` file. Those allow us to control whether a debug window pops up, for example. This accessible format allows the functions to be called from other programs that can't easily access python directly. For example, the StreamDeck doesn't easily support executing the right python command, but it easily supports running those script files.
+Furthermore, some decorators (eg: streamdeck, scheduler) save an execution string (`python ...`) in a `.vbs` and `.bat` file. Those allow us to control whether a debug window pops up, for example. This accessible format allows the functions to be called from other programs that can't easily access python directly. For example, the StreamDeck doesn't easily support executing the right python command, but it easily supports running those script files.
 
 ## Compilers
 Pybiosis comes with some built-in device compilers. You may also define your own if you have a novel device.
@@ -285,7 +285,7 @@ class Commands(CommandFramework):
             pass # Use setup.add_arguments(...) to add parameters.
             return
 
-        print(f"🛒 Running the [green]Youtube[/green] command.")
+        print(f"📺 Running the [green]Youtube[/green] command.")
 	webbrowser.open("https://www.youtube.com")
 ```
 This provides the ability for the user to define a CLI for custom  commands (in addition to being able to access the decorated functions). You can access a command (eg: videos) with `python -m pybiosis user videos`, or access the GUI CLI with `python -m pybiosis user`.
