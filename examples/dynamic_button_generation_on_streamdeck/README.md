@@ -20,7 +20,7 @@ This is what `MonitorLayout.create_screen_controls()` does.
 
 ![something](3.png)
 
-If instead, we went to `Settings` instead of `Visuals`, we get to control the orientation.
+If we went to `Settings` instead of `Visuals`, we get to control the orientation.
 This is what `MonitorLayout.create_setting_controls()` does.
 
 ![something](4.png)

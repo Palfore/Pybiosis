@@ -43,7 +43,7 @@ class CommandFramework:
 	CMD_START: callable = lambda self, args: f"⚡ CLI Executing Command: {args.cmd} with args {args}\n{self.HEADER}"
 	CMD_END: callable = lambda self, args: f"{self.HEADER}\n👋 Thanks for Running Your Command!"
 	GOOEY_DESCRIPTION_WORKAROUND: str = "|--------------------|"
-	CONFIG = ConfigurationManager()
+	CONFIG = ConfigurationManager(Path(__file__).parent.parent / 'config.json')
 
 
 	@classmethod
@@ -198,7 +198,8 @@ class CommandFramework:
 				self.parser = argparse.ArgumentParser(description=f"{cls.PROGRAM_NAME}!\n{cls.DESCRIPTION}", formatter_class=RichHelpFormatter)
 
 		# Dispatch to the right CLI type, and further dispatch the function call.
-		if gui := len(args) == 1:  # No actual args, just the default sys.argv[0] == pybioisis_script.
+		command_args = [a for a in args if not a.startswith('--')]  # i.e. ignore unknown parameters eg: ``bb --random`` -> `bb`, meanwhile `bb command` -> `bb command`.
+		if gui := len(command_args) == 1:  # No actual args, just the default sys.argv[0] == pybioisis_script.
 			print("🚀 Launching the CLI as a GUI (🖥️).")
 			GUI_CLI().build(gui=gui)  # .build() launches the gooey GUI: self.parser.parse_args()
 		else:

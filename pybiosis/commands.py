@@ -151,33 +151,9 @@ def call_user(gui, wait, args, unknown_args):
 
 
 def call_config(args, unknown_args, config_variables):
-	manager = ConfigurationManager()
-	match args:
-		case argparse.Namespace(set=[key, value]):
-			print(f"Setting `{key}` to `{value}`")
-			manager.set_config(key, value)
-			print("Completed. Listing Now:")
-			manager.list_config()
-
-		case argparse.Namespace(set=[key]):
-			print(f"Clearing `{key}`")
-			manager.clear_config(key)
-
-		case argparse.Namespace(set=[key, *values]):
-			raise ValueError(f"Must provide key or key-value pair for --set, not: {[key, *values]}")			
-
-		case argparse.Namespace(interactive=True):
-			manager.interactive_mode(config_variables)
-		
-		case argparse.Namespace(list=True):
-			print(f"Listing")
-			manager.list_config()
-		
-		case _:
-			print(f"Listing")
-			manager.list_config()
-
-
+	manager = ConfigurationManager(Path(__file__).parent / ".config.json", config_variables=config_variables)
+	manager.dispatch(args)
+	
 def call_gui(args, unknown_args):
 	module = Path(__file__).parent / 'compilers' / 'gui.py'
 	os.system(f"{sys.executable} -m streamlit run {module}")

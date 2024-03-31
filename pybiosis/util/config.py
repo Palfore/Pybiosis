@@ -3,21 +3,29 @@ import json
 from pathlib import Path
 
 class ConfigurationManager:
-    CONFIG_FILE: Path = Path(__file__).parent.parent / ".config.json"
+    def __init__(self, config_file: str, config_variables: list=None):
+        # Set the config file path.
+        self.config_file = config_file
 
-    def __init__(self):
+        # Set the config variables.
+        if not config_variables:
+            config_variables = []
+        self.config_variables = config_variables
+    
+        # Load the config file.        
         self.load_config()
 
     def load_config(self):
-        if self.CONFIG_FILE.exists():
-            with open(self.CONFIG_FILE, 'r') as file:
+        if self.config_file.exists():
+            with open(self.config_file, 'r') as file:
                 self.config = json.load(file)
         else:
             self.config = {}
+            self.save_config()
         return self.config
 
     def save_config(self):
-        with open(self.CONFIG_FILE, 'w') as file:
+        with open(self.config_file, 'w') as file:
             json.dump(self.config, file, indent=4)
 
     def list_config(self):
@@ -66,3 +74,30 @@ class ConfigurationManager:
 
     def has(self, key):
         return key in self.config
+
+    def dispatch(self, args):
+        match args:
+            case argparse.Namespace(set=[key, value]):
+                print(f"Setting `{key}` to `{value}`")
+                self.set_config(key, value)
+                print("Completed. Listing Now:")
+                self.list_config()
+
+            case argparse.Namespace(set=[key]):
+                print(f"Clearing `{key}`")
+                self.clear_config(key)
+
+            case argparse.Namespace(set=[key, *values]):
+                raise ValueError(f"Must provide key or key-value pair for --set, not: {[key, *values]}")            
+
+            case argparse.Namespace(interactive=True):
+                self.interactive_mode(self.config_variables)
+            
+            case argparse.Namespace(list=True):
+                print(f"Listing")
+                self.list_config()
+            
+            case _:
+                print(f"Listing")
+                self.list_config()
+

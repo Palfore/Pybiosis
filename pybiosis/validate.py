@@ -1,4 +1,5 @@
 from pybiosis.util.config import ConfigurationManager
+from pathlib import Path
 import ctypes
 import sys
 import os
@@ -17,7 +18,7 @@ def require_admin():
 		raise InvalidEnvironment("Must compile with admin privileges.")
 
 def require_user_path():
-	if ConfigurationManager().get('user_path') is None:
+	if ConfigurationManager(Path(__file__).parent / '.config.json').get('user_path') is None:
 		raise InvalidEnvironment("There is no user_path set. Please use `python -m pybiosis config --set user_path Path/To/User/Dir`.")
 
 def _user_is_admin():  # https://stackoverflow.com/questions/1026431/cross-platform-way-to-check-admin-rights-in-a-python-script-under-windows

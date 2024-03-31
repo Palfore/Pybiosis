@@ -4,7 +4,7 @@
 > What could empower you more than a symbiotic relationship with Python?
 
 Pybiosis is an automation software that focuses on making python functions more accessible by providing versatile entry-points to functions.
-This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler). Pybiosis also provides a CLI, a _GUI_ CLI (using [gooey](https://github.com/chriskiehl/Gooey/tree/master)), and a GUI (using [streamlit](https://github.com/streamlit/streamlit)) to access these functions.
+This project makes heavy use of decorators, which define the entry-points. Currently, there are existing implementations for services like [StreamDeck](#streamdeck), [Google Assistant](#google-assistant), and [Windows Task Scheduler](#scheduler). Pybiosis also provides a CLI, a _GUI_ CLI (using [gooey](https://github.com/chriskiehl/Gooey/tree/master)), and a GUI (using [streamlit](https://github.com/streamlit/streamlit)) to access these functions. For example, even if you don't have a StreamDeck you can still access [an analogous interface using the GUI](#usage)!
 
 ## How It Works
 ### Example:
@@ -299,6 +299,8 @@ This provides the ability for the user to define a CLI for custom  commands (in 
 ## Limitations
 1. Most of this functionality is tested on Windows.
 2. If you get a password prompt from Push2Run, simply recompile until it stops.
+3. The streamdeck compiler supports v5.0.1.14252 of the StreamDeck software. Compatibility with the latest version needs to be checked (v6.5.2.19936 at time of writing).
+4. It seems like the CLI fails to forward command line arguments correctly. Possibly only when using the entry points `pybiosis` or `bb`.
 
 ## Future Work
 1. Stream Deck folders cannot be generated programmatically yet, nor is deleting supported.
@@ -306,7 +308,8 @@ This provides the ability for the user to define a CLI for custom  commands (in 
 3. Fill out the GUI. Each device subclass should implement their own widget. For now, only the `StreamDeck` does.
 4. Add tools like monitor control, audio controls, usb devices, games, GUI automation, dashboard.
 5. Add keyboard and mouse decorators, eg: `@Click(region=(...))`, `@Press(combo=['SHIFT', 'A'])`. Add new cli command `monitor`/`watch`. Likely to use pip libraries [`keyboard`](https://pypi.org/project/keyboard/) and [`mouse`](https://pypi.org/project/mouse/).
-6. Add examples folder.
+6. Provide "packages" (aka plugins/systems/presets) for stream deck, eg: `--install monitors /games/monitors` would generate the button layout in that folder.
+7. Add a `@Voice` decorator and `run` command for listening. See `/experimental/voice.py` for a WIP.
 
 
 ## Questions?

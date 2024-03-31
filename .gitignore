@@ -132,3 +132,4 @@ dmypy.json
 records/
 Applications/Push2Run/pybiosis.p2r
 pybiosis/.config.json
+pybiosis/config.json

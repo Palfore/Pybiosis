@@ -22,7 +22,7 @@ class Commands(CommandFramework):
 	def add_run(self, setup, args, **kwargs):
 		""" Run and search for functions to run. """
 
-		manager = ConfigurationManager()
+		manager = ConfigurationManager(Path(__file__).parent / '.config.json')
 		if manager.has('user_path'):
 			with general.ChangeDir(loader.get_user_path()):
 				pybiosis.load()

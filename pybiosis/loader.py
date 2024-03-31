@@ -11,7 +11,7 @@ def get_user_path():
 		return Path().absolute()
 	
 	validate.require_user_path()
-	return Path(ConfigurationManager().get('user_path'))
+	return Path(ConfigurationManager(Path(__file__).parent / '.config.json').get('user_path'))
 
 def get_user_modules():
 	modules = glob.glob(os.path.join(get_user_path(), "**/*.py"), recursive=True)
