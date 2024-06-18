@@ -151,7 +151,7 @@ def call_user(gui, wait, args, unknown_args):
 
 
 def call_config(args, unknown_args, config_variables):
-	manager = ConfigurationManager(Path(__file__).parent / ".config.json", config_variables=config_variables)
+	manager = ConfigurationManager(loader.get_config_path(), config_variables=config_variables)
 	manager.dispatch(args)
 	
 def call_gui(args, unknown_args):

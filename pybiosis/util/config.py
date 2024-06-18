@@ -98,6 +98,6 @@ class ConfigurationManager:
                 self.list_config()
             
             case _:
-                print(f"Listing")
+                print(f"Listing (default)")
                 self.list_config()
 
