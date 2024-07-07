@@ -150,6 +150,15 @@ class Device:
 
 		# Store f
 		if cls == Device:  # Device decorator is applied last, so it should be the final thing to put it in the pipeline.
+			
+			# It seems that the Device decorator will pick up functions that are imported in a module.
+			# This is in addition to the functions defined in the module, which we want.
+			# When they are imported, it will provide the module as None and __module__ as a valid Path() to the imported module.
+			# When we encounter imported functions, don't append to Device.Functions, and return a dummy.
+			if f.module is None:
+				return lambda: None
+			
+
 			Device.FUNCTIONS.append((decorator.__class__, f))
 		return f
 

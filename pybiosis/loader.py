@@ -37,3 +37,19 @@ def import_from_path(module):
 	module = module.rpartition('.py')[0]
 	module = importlib.import_module(module)
 	return module
+
+def import_user_module(path):
+	file_path = get_user_path() / path
+	
+	# Extract the module name from the file path
+	module_name = str(file_path).split('/')[-1].split('.')[0]
+
+	# # Add the directory containing the file to the system path
+	# sys.path.append('/'.join(file_path.split('/')[:-1]))
+
+	# Load the module
+	spec = importlib.util.spec_from_file_location(module_name, file_path)
+	module = importlib.util.module_from_spec(spec)
+	spec.loader.exec_module(module)
+
+	return module

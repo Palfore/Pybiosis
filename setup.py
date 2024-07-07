@@ -1,3 +1,11 @@
+""" To upload the next version of the library:
+
+1. Increment the __version__.py.
+2. Run `python setup.py sdist`
+3. Run `twine upload dist/*`
+
+"""
+
 import setuptools
 from pybiosis.__version__ import __version__
 
