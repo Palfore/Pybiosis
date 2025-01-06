@@ -94,21 +94,11 @@ class Scheduler(Device):
 	@staticmethod
 	def get_tasks(custom=False):
 		""" Returns a list of scheduled tasks. """
-		# import pandas
-		# o = command([Scheduler.EXE, '/query', '/fo', 'CSV', '/nh'])
-		# names = pandas.read_csv(StringIO(o)).iloc[:,0].to_list()
-		# if custom:
-		# 	return [n for n in names if n.startswith('\\'+Scheduler.TASKNAME_PREFIX)]
-		# else:
-		# 	return names
-
-
-		# command_output = subprocess.run(['Scheduler.EXE', '/query', '/fo', 'CSV', '/nh'], capture_output=True, text=True)
 		command_output = subprocess.run(['schtasks.exe', '/query', '/fo', 'CSV', '/nh'], capture_output=True, text=True)
 		output_lines = command_output.stdout.strip().split('\n')
 		names = [line.split(',')[0] for line in output_lines]
 		if custom:
-			return [n for n in names if n.startswith('\\' + Scheduler.TASKNAME_PREFIX)]
+			return [n.strip('"') for n in names if n.strip('"').strip("/").strip("\\").startswith(Scheduler.TASKNAME_PREFIX)]
 		else:
 			return names
 
@@ -201,5 +191,7 @@ class Scheduler(Device):
 				return False
 		except Exception as e:
 			return str(e).strip()
+
+		return True
 
 

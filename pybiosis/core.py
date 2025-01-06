@@ -72,6 +72,14 @@ def print_function_header(f, i):
 	print(f'\t\t{" "*len(str(i))}'+'  ' + '-'*80)
 
 
+
+def module_function_is_blank():
+	# This function exists at the top level to resolve a bug crashing, but its unclear which task is causing this. 
+	# Functions may experience lack of functionality due to this (since this dummy function does nothing and returns None).
+	# Update: I think this is related to the Assistant decorator, perhaps when it is below the streamdeck decorator.
+	print("The module function is blank function was called...")
+	return None
+
 class Device:
 	""" Models a generic device or service.
 		Can be used to provide function metadata, must be the first (highest) decorator.
@@ -156,7 +164,10 @@ class Device:
 			# When they are imported, it will provide the module as None and __module__ as a valid Path() to the imported module.
 			# When we encounter imported functions, don't append to Device.Functions, and return a dummy.
 			if f.module is None:
-				return lambda: None
+				# When this occurs, it causes an issue if "lambda" is the name since it gets replaced with <lambda> which isn't a valid filename.
+				# It is unclear where exactly and which command is causing this.
+				return module_function_is_blank
+				return lambda: None  # This causes the issue. ERROR: The filename, directory name, or volume label syntax is incorrect.
 			
 
 			Device.FUNCTIONS.append((decorator.__class__, f))
