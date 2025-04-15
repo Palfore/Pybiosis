@@ -63,6 +63,8 @@ class RunHelper:
 
 	@classmethod
 	def call_function_by_dot_syntax(cls, identifier: str):
+		if not identifier:
+			raise ValueError("You did not supply an function to call.")
 		module, function_name = identifier.rsplit('.', 1)
 		module = general.import_module(module.replace('.', os.sep) + '.py')  # We are in the user_path.
 		function = getattr(module, function_name)
@@ -117,8 +119,11 @@ def call_run(args, unknown_args):
 
 			# For `run identifier`:
 			case argparse.Namespace(run=identifier) if not unknown_args:
-				print("Calling:", identifier)
-				RunHelper.call_function_by_dot_syntax(identifier)
+				if identifier:
+					print("Calling:", identifier)
+					RunHelper.call_function_by_dot_syntax(identifier)
+				else:
+					print("No identifier was provided, so no command was run. You can use `--help` for more on the `run` command.")
 
 			case _:
 				print(f"Command to be executed: {args} {unknown_args}")
