@@ -22,13 +22,20 @@ def create_grid(num_rows: int, num_cols: int, button_info):
 				button_clicked = st.button(button_label, help=tooltip, disabled=not bool(function))
 				if button_clicked:
 					identifier = f"{function['dot']}.{function['name']}"
-					st.write(function, identifier)
 
-					module = general.import_module(function['file'])  # We are in the user_path.
-					function = getattr(module, function['name'])
-					function()
-					# commands.RunHelper.call_function_by_dot_syntax(identifier)
+					file_path = Path(function['file']).resolve()
+					module_dir = file_path.parent
+					module_name = file_path.stem  # This is the filename without .py
 
+					# st.write(function, identifier)
+					command = (
+					    f'python -c "import sys; '
+					    f'sys.path.append(r\'{module_dir}\'); '
+					    f'import {module_name}; '
+					    f'getattr({module_name}, \'{function["name"]}\')()"'
+					)
+					os.system(command)
+					
 
 def main():
 	st.set_page_config(layout="wide")
